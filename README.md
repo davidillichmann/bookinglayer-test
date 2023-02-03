@@ -1,66 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Bookinglayer-test
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Task
 
-## About Laravel
+The task of the test is to correctly calculate room occupancy rates. Occupancy rates represent
+the number of occupied versus vacant rooms. We need occupancy rates for a single day vs
+multiple room ids and for a single month vs multiple room ids (so queries are not always against
+all rooms).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## World
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Download a fresh version of recent laravel.
+Please create 3 models in system:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Room (can be blocked or booked)
+- id
+- capacity (integer)
 
-## Learning Laravel
+### Booking 
+(is a room reservation, that takes 1 capacity. So room with 4 capacity can be booked 4
+times for same date)
+- id
+- room_id
+- starts_at (date)
+- ends_at (date)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Block 
+(that’s not booking it’s just a indicator that room is not available then, same as booking
+one block takes only 1 capacity)
+- id
+- room_id
+- starts_at (date)
+- ends_at (date)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+These are base models, feel free to create more if you need them.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## How we calculate occupancies
 
-## Laravel Sponsors
+Sum all booked dates / (sum capacity - sum blocks).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### Example
+```
+Rooms
+Room A - capacity 6
+Room B - capacity 4
+Room C - capacity 2
 
-### Premium Partners
+Bookings
+B1 - Room A 1 Jan to 5 Jan
+B2 - Room A 1 Jan to 5 Jan
+B3 - Room A 1 Jan to 5 Jan
+B4 - Room B 1 Jan to 5 Jan
+B5 - Room B 3 Jan to 8 Jan
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+Blocks
+Room B 1 Jan to 10 Jan
+```
+### When we query for all rooms:
 
-## Contributing
+Occupancy rate for 2 Jan: Total capacity of all rooms is 12, total occupancy is 4
+and there is 1 block on that date. So occupancy rate is 4 / (12-1) ~= 0,36
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Occupancy rate for Jan (entire month): Total capacity of all rooms is 12 * 31(days in Jan) =
+372, total occupancy is B1 (5) + B2 (5) + B3 (5) + B4 (5) + B5 (6) = 26 and blocks (10). So
+occupancy rate is 26 / (372-10) ~= 0,07
 
-## Code of Conduct
+### When we query for specific rooms like just B and C
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Occupancy rate for 6 Jan: Total capacity of B and C is 6, total occupancy is 1
+and there is 1 block on that date. So occupancy rate is 1 / (6-1) ~= 0,2
 
-## Security Vulnerabilities
+Occupancy rate for Jan (entire month): Total capacity of queried rooms is 6 * 31(days in Jan) =
+186, total occupancy is B4 (5) + B5 (6) = 11 and blocks (10). So occupancy rate is 11 / (186-10)
+~= 0,06
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Endpoints
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```
+GET /daily-occupancy-rates/{Y-m-d}?product_ids[]=X&room_ids[]=Y...
+GET /monthly-occupancy-rates/{Y-m}?product_ids[]=X&room_ids[]=Y...
+```
+These endpoints should return a occupancy rate like {“occupancy_rate” : 0.2}
+“room_ids” param is optional. When not provided we return occupancy rate for all rooms.
+```
+POST /booking
+PUT /booking/{id}
+```
+These endpoints should create or update `booking` which will result in change of
+*-occupancy-rates response.
