@@ -15,7 +15,7 @@ class StoreBookingTest extends TestCase
     /**
      * @return void
      */
-    public function test_booking_can_be_stored()
+    public function test_booking_is_stored()
     {
         $room = Room::factory()->create();
 

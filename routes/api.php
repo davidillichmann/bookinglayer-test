@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\DailyOccupancyRateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,3 +21,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::apiResource('bookings', BookingController::class)->only('update', 'store');
+Route::get('daily-occupancy-rates/{date}', DailyOccupancyRateController::class)->name('daily-occupancy-rates');

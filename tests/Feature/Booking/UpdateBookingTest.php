@@ -16,7 +16,7 @@ class UpdateBookingTest extends TestCase
     /**
      * @return void
      */
-    public function test_booking_can_be_updated()
+    public function test_booking_is_updated()
     {
         $booking = Booking::factory()->create();
 
