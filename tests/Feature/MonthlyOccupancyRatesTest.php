@@ -8,31 +8,31 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Database\Seeders\ExampleSeeder;
 use Tests\TestCase;
 
-class DailyOccupancyRateTest extends TestCase
+class MonthlyOccupancyRatesTest extends TestCase
 {
     use RefreshDatabase;
 
     /**
      * @return void
      */
-    public function test_daily_occupancy_rates_all_rooms()
+    public function test_monthly_occupancy_rates_all_rooms()
     {
         $this->seed(ExampleSeeder::class);
 
         $response = $this->getJson(
-            route('daily-occupancy-rates', '2022-01-02'),
+            route('monthly-occupancy-rates', '2022-01'),
         );
 
         $response->assertOk();
         $response->assertJson([
-            'occupancy_rate' => 0.36
+            'occupancy_rate' => 0.07
         ]);
     }
 
     /**
      * @return void
      */
-    public function test_daily_occupancy_rates_filtered_rooms()
+    public function test_monthly_occupancy_rates_filtered_rooms()
     {
         $this->seed(ExampleSeeder::class);
 
@@ -41,9 +41,9 @@ class DailyOccupancyRateTest extends TestCase
 
         $response = $this->getJson(
             route(
-                'daily-occupancy-rates',
+                'monthly-occupancy-rates',
                 [
-                    'date' => '2022-01-06',
+                    'month' => '2022-01',
                     'room_ids' => [
                         $roomB->id,
                         $roomC->id,
@@ -54,7 +54,7 @@ class DailyOccupancyRateTest extends TestCase
 
         $response->assertOk();
         $response->assertJson([
-            'occupancy_rate' => 0.2
+            'occupancy_rate' => 0.06
         ]);
     }
 }

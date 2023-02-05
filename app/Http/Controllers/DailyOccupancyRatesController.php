@@ -7,7 +7,7 @@ use App\Models\Booking;
 use App\Models\Room;
 use Illuminate\Http\Request;
 
-class DailyOccupancyRateController extends Controller
+class DailyOccupancyRatesController extends Controller
 {
     /**
      * Handle the incoming request.
